@@ -32,10 +32,9 @@ docker run -d `
   orderservice:latest
   
 
-````markdown
 
 ### Stop and remove the old container
-```bash
+```powershell
 docker stop orderservice-container
 docker rm orderservice-container
 ```
@@ -43,7 +42,7 @@ docker rm orderservice-container
 ### Start the new container
 
 
-```bash
+```powershell
 docker run -d `
   --name orderservice-container `
   --network microservices-network `
@@ -51,6 +50,3 @@ docker run -d `
   -e "Services__ProductService=http://productservice-container:8080" `
   orderservice:latest
 ```
-
-
-````
