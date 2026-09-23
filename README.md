@@ -22,6 +22,23 @@ Postman
 
 ## Docker commands
 
+### Check active containers
+```powershell
+docker ps
+```
+
+### Start both containers
+```powershell
+docker start orderservice-container
+docker start productservice-container
+```
+
+### Stop both containers
+```powershell
+docker stop orderservice-container
+docker stop productservice-container
+```
+
 ### Stop and remove the old container
 ```powershell
 docker stop orderservice-container
