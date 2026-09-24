@@ -7,6 +7,8 @@ services:
     container_name: productservice-container
     ports:
       - "7000:8080"
+    volumes:
+      - productdata:/data
 
   orderservice:
     build:
@@ -15,7 +17,13 @@ services:
     container_name: orderservice-container
     ports:
       - "7004:8080"
+    volumes:
+      - orderdata:/data
     environment:
       Services__ProductService: "http://productservice:8080"
     depends_on:
       - productservice
+
+volumes:
+  productdata:
+  orderdata:
