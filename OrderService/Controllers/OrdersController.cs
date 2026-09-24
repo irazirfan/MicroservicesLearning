@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using OrderService.Data;
 using OrderService.Models;
-
 
 namespace OrderService.Controllers
 {
@@ -10,32 +11,32 @@ namespace OrderService.Controllers
     {
         private IHttpClientFactory _httpClientFactory;
         private IConfiguration _configuration;
+        private OrderDbContext _db;
 
-        public OrdersController(IHttpClientFactory httpClientFactory, IConfiguration configuration) 
+        public OrdersController(IHttpClientFactory httpClientFactory, IConfiguration configuration, OrderDbContext db) 
         {
             _httpClientFactory = httpClientFactory;
             _configuration = configuration;
+            _db = db;
         }
 
         [HttpGet]
-        public IActionResult GetOrders()
+        public async Task<ActionResult<IEnumerable<Order>>> GetOrders()
         {
-            return Ok(new[]
-            {
-        new Order { Id = 1, ProductId = 1, Quantity = 2 },
-        new Order { Id = 2, ProductId = 2, Quantity = 1 }
-    });
+            var orders = await _db.Orders.ToListAsync();
+
+            return Ok(orders);
         }
 
         [HttpGet("{id}")]
-        public IActionResult GetOrder(int id)
+        public async Task<ActionResult<IEnumerable<Order>>> GetOrder(int id)
         {
-            var order = new Order
+            var order = await _db.Orders.FindAsync(id);
+
+            if (order == null)
             {
-                Id = id,
-                ProductId = 1,
-                Quantity = 2
-            };
+                return NotFound();
+            }
 
             return Ok(order);
         }
@@ -47,7 +48,8 @@ namespace OrderService.Controllers
 
             var productServiceUrl = _configuration["Services:ProductService"];
 
-            var productResponse = await client.GetAsync($"{productServiceUrl}/api/products/{order.ProductId}");
+            var productResponse = await client.GetAsync(
+                $"{productServiceUrl}/api/products/{order.ProductId}");
 
             if (!productResponse.IsSuccessStatusCode)
             {
@@ -56,9 +58,14 @@ namespace OrderService.Controllers
 
             var product = await productResponse.Content.ReadFromJsonAsync<Product>();
 
+            _db.Orders.Add(order);
+
+            await _db.SaveChangesAsync();
+
             return Ok(new
             {
                 Message = "Order created",
+                Order = order,
                 Product = product,
                 Quantity = order.Quantity
             });
