@@ -1,0 +1,21 @@
+services:
+
+  productservice:
+    build:
+      context: ./ProductService
+      dockerfile: Dockerfile
+    container_name: productservice-container
+    ports:
+      - "7000:8080"
+
+  orderservice:
+    build:
+      context: ./OrderService
+      dockerfile: Dockerfile
+    container_name: orderservice-container
+    ports:
+      - "7004:8080"
+    environment:
+      Services__ProductService: "http://productservice:8080"
+    depends_on:
+      - productservice

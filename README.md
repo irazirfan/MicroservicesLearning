@@ -1,5 +1,42 @@
 # MicroservicesLearning
 
+
+## two-service Docker Compose setup
+
+                 Your PC
+                   │
+        ┌──────────┴──────────┐
+        │                     │
+ localhost:7000         localhost:7004
+        │                     │
+        ▼                     ▼
+┌───────────────┐      ┌───────────────┐
+│ ProductService│◄─────│  OrderService │
+│    :8080      │ HTTP │    :8080      │
+└───────────────┘      └───────────────┘
+        ▲                     │
+        └─────────────────────┘
+             Docker network
+
+
+## Docker commands
+
+### Build
+```powershell
+docker compose up -d --build
+```
+
+### Start
+```powershell
+docker compose up -d
+```
+
+### Stop
+```powershell
+docker compose down
+```
+
+
 ## Docker setup
 Postman
    │
