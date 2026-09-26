@@ -44,12 +44,28 @@ namespace OrderService.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateOrder(Order order)
         {
-            var client = _httpClientFactory.CreateClient();
+            var client = _httpClientFactory.CreateClient("ProductServiceClient");
 
             var productServiceUrl = _configuration["Services:ProductService"];
 
-            var productResponse = await client.GetAsync(
-                $"{productServiceUrl}/api/products/{order.ProductId}");
+            HttpResponseMessage productResponse;
+
+            try
+            {
+                productResponse = await client.GetAsync($"{productServiceUrl}/api/products/{order.ProductId}");
+            }
+            catch (TaskCanceledException)
+            {
+                return StatusCode(
+                    StatusCodes.Status504GatewayTimeout,
+                    "ProductService took too long to respond");
+            }
+            catch (HttpRequestException)
+            {
+                return StatusCode(
+                    StatusCodes.Status503ServiceUnavailable,
+                    "ProductService is currently unavailable");
+            }
 
             if (!productResponse.IsSuccessStatusCode)
             {
